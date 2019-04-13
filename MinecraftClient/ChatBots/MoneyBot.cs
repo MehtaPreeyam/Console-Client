@@ -28,7 +28,6 @@ namespace MinecraftClient.ChatBots
             text = GetVerbatim(text);
             if (text.Contains("has been received from"))
             {
-                Console.WriteLine(text);
                 text = GetVerbatim(text);
                 String[] elements = text.Split(' ');
                 String amt = elements[0];
