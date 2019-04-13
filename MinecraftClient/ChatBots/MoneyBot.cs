@@ -57,8 +57,7 @@ namespace MinecraftClient.ChatBots
 
         private void save(string tosave)
         {
-             tosave = GetTimestamp() + ' ' + tosave;
-
+            tosave = GetTimestamp() + ' ' + tosave;
             string directory = Path.GetDirectoryName(logfile);
             if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
