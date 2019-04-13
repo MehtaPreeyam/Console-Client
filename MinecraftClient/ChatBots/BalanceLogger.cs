@@ -4,7 +4,7 @@ using System.IO;
 namespace MinecraftClient.ChatBots
 {
     /// <summary>
-    /// This bot sends a command every 60 seconds in order to stay non-afk.
+    /// This bot logs the players in players.txt.
     /// </summary>
 
     public class BalanceLogger : ChatBot
