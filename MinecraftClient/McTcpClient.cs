@@ -113,6 +113,7 @@ namespace MinecraftClient
                 if (botsOnHold.Count == 0)
                 {
                     BotLoad(new ChatBots.BalanceLogger(600, "players.txt", "Balances.txt"));
+                    BotLoad(new ChatBots.FactionLogger(18000)); // 30 mins
                     BotLoad(new ChatBots.MoneyBot());
                     Console.WriteLine("MoneyBot loaded");
                     if (Settings.AntiAFK_Enabled) { BotLoad(new ChatBots.AntiAFK(Settings.AntiAFK_Delay)); }
