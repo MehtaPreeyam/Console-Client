@@ -22,6 +22,21 @@ namespace MinecraftClient.ChatBots
                 UnloadBot();
             }
         }
+        public string judgePayment(int amt)
+        {
+            if(amt < 100000000)
+            {
+                return " Oof, less than 100 mil sell? Are you sure you're not holding out on us?";
+            }
+            else if(amt < 250000000)
+            {
+                return " Not a bad sell, but also not a great sell. Dont worry you'll get there one day";
+            }
+            else
+            {
+                return " Monster sell, good shit";
+            }
+        }
 
         public override void GetText(string text)
         {
@@ -31,9 +46,12 @@ namespace MinecraftClient.ChatBots
                 text = GetVerbatim(text);
                 String[] elements = text.Split(' ');
                 String amt = elements[0];
-                String name = text.Substring(text.IndexOf(">") + 2, text.Length - text.IndexOf(">") - 2);
-                // int amount = Int32.Parse(amt.Substring(1, amt.Length));
+                String name = text.Substring(text.IndexOf(">") + 2, text.Length - text.IndexOf(">") - 3);
+                int amount = Int32.Parse(amt.Substring(1)) * 10;
                 save(amt.Substring(1) + " " + name);
+                string response = "/msg "+name+" Hello " + name + ". We thank you for your payment of " + amt + ".";
+                SendText(response);
+                SendText("/msg " + name + judgePayment(amount));
             }
         }
 
