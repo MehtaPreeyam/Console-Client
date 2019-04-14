@@ -22,13 +22,13 @@ namespace MinecraftClient.ChatBots
                 UnloadBot();
             }
         }
-        public string judgePayment(int amt)
+        public string judgePayment(double amt)
         {
-            if(amt < 100000000)
+            if(amt < 100000000D)
             {
                 return " Oof, less than 100 mil sell? Are you sure you're not holding out on us?";
             }
-            else if(amt < 250000000)
+            else if(amt < 250000000D)
             {
                 return " Not a bad sell, but also not a great sell. Dont worry you'll get there one day";
             }
@@ -47,7 +47,7 @@ namespace MinecraftClient.ChatBots
                 String[] elements = text.Split(' ');
                 String amt = elements[0];
                 String name = text.Substring(text.IndexOf(">") + 2, text.Length - text.IndexOf(">") - 3);
-                int amount = Int32.Parse(amt.Substring(1)) * 10;
+                double amount = Double.Parse(amt.Substring(1)) * 10;
                 save(amt.Substring(1) + " " + name);
                 string response = "/msg "+name+" Hello " + name + ". We thank you for your payment of " + amt + ".";
                 SendText(response);
