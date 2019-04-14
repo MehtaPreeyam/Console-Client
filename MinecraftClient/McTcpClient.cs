@@ -114,6 +114,7 @@ namespace MinecraftClient
                 {
                     BotLoad(new ChatBots.BalanceLogger(6000, "players.txt", "Balances.txt"));
                     BotLoad(new ChatBots.MoneyBot());
+                    BotLoad(new ChatBots.FactionLogger(6000));
                     Console.WriteLine("MoneyBot loaded");
                     if (Settings.AntiAFK_Enabled) { BotLoad(new ChatBots.AntiAFK(Settings.AntiAFK_Delay)); }
                     if (Settings.Hangman_Enabled) { BotLoad(new ChatBots.HangmanGame(Settings.Hangman_English)); }
