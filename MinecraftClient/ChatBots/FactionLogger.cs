@@ -38,9 +38,16 @@ namespace MinecraftClient.ChatBots
             text = GetVerbatim(text);
             if (text.Contains("Members online:"))
             {
-                Console.WriteLine(text);
-                int numOnline = text.Length - text.Replace(",", "").Length+1;
-                save(currFac + " " + numOnline);
+                if (text.Length == 16)
+                {
+                    save(currFac + " " + 0);
+                }
+                else
+                {
+                    Console.WriteLine(text);
+                    int numOnline = text.Length - text.Replace(",", "").Length + 1;
+                    save(currFac + " " + numOnline);
+                }
             }
         }
 
