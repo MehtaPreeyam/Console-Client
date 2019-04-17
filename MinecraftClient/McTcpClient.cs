@@ -112,10 +112,6 @@ namespace MinecraftClient
             {
                 if (botsOnHold.Count == 0)
                 {
-                    BotLoad(new ChatBots.BalanceLogger(6000, "players.txt", "Balances.txt"));
-                    BotLoad(new ChatBots.MoneyBot());
-                    BotLoad(new ChatBots.FactionLogger(6000));
-                    Console.WriteLine("MoneyBot loaded");
                     if (Settings.AntiAFK_Enabled) { BotLoad(new ChatBots.AntiAFK(Settings.AntiAFK_Delay)); }
                     if (Settings.Hangman_Enabled) { BotLoad(new ChatBots.HangmanGame(Settings.Hangman_English)); }
                     if (Settings.Alerts_Enabled) { BotLoad(new ChatBots.Alerts()); }
@@ -472,7 +468,7 @@ namespace MinecraftClient
                     yaw = 90;
                     break;
                 case Direction.North:
-                    yaw = 90;
+                    yaw = 180;
                     break;
                 case Direction.South:
                     break;
@@ -608,7 +604,7 @@ namespace MinecraftClient
                             {
                                 Location next = path.Dequeue();
                                 steps = Movement.Move2Steps(location, next, ref motionY);
-                                UpdateLocation(location, next); // Update yaw and pitch to look at next step
+                                UpdateLocation(location, next + new Location(0, 1, 0)); // Update yaw and pitch to look at next step
                             }
                             else
                             {
