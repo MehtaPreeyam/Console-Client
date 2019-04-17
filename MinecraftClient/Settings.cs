@@ -28,6 +28,7 @@ namespace MinecraftClient
         public static string ServerIP = "";
         public static ushort ServerPort = 25565;
         public static string ServerVersion = "";
+        public static string ID = "";
         public static string SingleCommand = "";
         public static string ConsoleTitle = "";
 

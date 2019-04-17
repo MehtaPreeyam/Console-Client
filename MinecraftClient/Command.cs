@@ -72,6 +72,7 @@ namespace MinecraftClient
 
         public static string[] getArgs(string command)
         {
+            Console.WriteLine(command);
             string[] args = getArg(command).Split(' ');
             if (args.Length == 1 && args[0] == "")
             {

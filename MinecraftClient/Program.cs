@@ -8,6 +8,7 @@ using System.Threading;
 using MinecraftClient.Protocol.Handlers.Forge;
 using MinecraftClient.Protocol.Session;
 using MinecraftClient.WinAPI;
+using System.IO;
 
 namespace MinecraftClient
 {
@@ -93,7 +94,7 @@ namespace MinecraftClient
                         //Single command?
                         if (args.Length >= 4)
                         {
-                            Settings.SingleCommand = args[3];
+                            Settings.ID = args[3];
                         }
                     }
                 }
@@ -364,6 +365,18 @@ namespace MinecraftClient
                         string command = " ";
                         ConsoleIO.WriteLineFormatted("Not connected to any server. Use '" + (Settings.internalCmdChar == ' ' ? "" : "" + Settings.internalCmdChar) + "help' for help.");
                         ConsoleIO.WriteLineFormatted("Or press Enter to exit Minecraft Console Client.");
+
+                        string directory = Path.GetDirectoryName("restartqueue.txt");
+                        if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                            Directory.CreateDirectory(directory);
+                        FileStream stream = new FileStream("restartqueue.txt", FileMode.OpenOrCreate);
+                        StreamWriter writer = new StreamWriter(stream);
+                        stream.Seek(0, SeekOrigin.End);
+                        writer.WriteLine(Settings.Login + " " + Settings.Password + " " + Settings.ID);
+                        writer.Dispose();
+                        stream.Close();
+
+                        Exit();
                         while (command.Length > 0)
                         {
                             if (!ConsoleIO.BasicIO)
