@@ -366,17 +366,20 @@ namespace MinecraftClient
                         ConsoleIO.WriteLineFormatted("Not connected to any server. Use '" + (Settings.internalCmdChar == ' ' ? "" : "" + Settings.internalCmdChar) + "help' for help.");
                         ConsoleIO.WriteLineFormatted("Or press Enter to exit Minecraft Console Client.");
 
-                        string directory = Path.GetDirectoryName("restartqueue.txt");
-                        if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                            Directory.CreateDirectory(directory);
-                        FileStream stream = new FileStream("restartqueue.txt", FileMode.OpenOrCreate);
-                        StreamWriter writer = new StreamWriter(stream);
-                        stream.Seek(0, SeekOrigin.End);
-                        writer.WriteLine(Settings.Login + " " + Settings.Password + " " + Settings.ID);
-                        writer.Dispose();
-                        stream.Close();
+                        if (Settings.restart)
+                        {
+                            string directory = Path.GetDirectoryName("restartqueue.txt");
+                            if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                                Directory.CreateDirectory(directory);
+                            FileStream stream = new FileStream("restartqueue.txt", FileMode.OpenOrCreate);
+                            StreamWriter writer = new StreamWriter(stream);
+                            stream.Seek(0, SeekOrigin.End);
+                            writer.WriteLine(Settings.Login + " " + Settings.Password + " " + Settings.ID + " " + errorMessage);
+                            writer.Dispose();
+                            stream.Close();
+                        }
 
-                        Exit();
+                        Exit(); //below code will never execute
                         while (command.Length > 0)
                         {
                             if (!ConsoleIO.BasicIO)

@@ -31,6 +31,7 @@ namespace MinecraftClient
         public static string ID = "";
         public static string SingleCommand = "";
         public static string ConsoleTitle = "";
+        public static Boolean restart = true;
 
         //Proxy Settings
         public static bool ProxyEnabledLogin = false;

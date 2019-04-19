@@ -112,6 +112,8 @@ namespace MinecraftClient
             {
                 if (botsOnHold.Count == 0)
                 {
+                    string[] phrases = {"You seem to be logged in already"};
+                    BotLoad(new ChatBots.RestartHandler(phrases));
                     if (Settings.AntiAFK_Enabled) { BotLoad(new ChatBots.AntiAFK(Settings.AntiAFK_Delay)); }
                     if (Settings.Hangman_Enabled) { BotLoad(new ChatBots.HangmanGame(Settings.Hangman_English)); }
                     if (Settings.Alerts_Enabled) { BotLoad(new ChatBots.Alerts()); }
