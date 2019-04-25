@@ -60,6 +60,10 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
+    <Reference Include="fNbt, Version=0.6.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\fNbt.0.6.4\lib\net35-client\fNbt.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -82,6 +86,7 @@
     <Compile Include="ChatBots\PlayerListLogger.cs" />
     <Compile Include="ChatBots\RemoteControl.cs" />
     <Compile Include="ChatBots\Script.cs" />
+    <Compile Include="ChatBots\Stronghold.cs" />
     <Compile Include="ChatBots\ScriptScheduler.cs" />
     <Compile Include="ChatBots\TestBot.cs" />
     <Compile Include="ChatBot.cs" />
@@ -263,6 +268,9 @@
   <ItemGroup>
     <Content Include="Protocol\Dns\Records\totla.txt" />
     <Content Include="Resources\AppIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

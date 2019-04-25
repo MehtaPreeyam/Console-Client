@@ -9,6 +9,7 @@ using MinecraftClient.Proxy;
 using System.Security.Cryptography;
 using MinecraftClient.Protocol.Handlers.Forge;
 using MinecraftClient.Mapping;
+using fNbt;
 
 namespace MinecraftClient.Protocol.Handlers
 {
@@ -41,6 +42,12 @@ namespace MinecraftClient.Protocol.Handlers
         private bool login_phase = true;
         private bool encrypted = false;
         private int protocolversion;
+        private byte chest_id;
+        private int chest_size;
+        private bool sh_in_inv = false;
+        private string chest_title;
+        public static bool sh = false;
+        public static double sh_percent = 0.0;
 
         // Server forge info -- may be null.
         private ForgeInfo forgeInfo;
@@ -553,6 +560,39 @@ namespace MinecraftClient.Protocol.Handlers
             throw new System.ComponentModel.InvalidEnumArgumentException("Unknown PacketOutgoingType (protocol=" + protocol + ")", (int)packet, typeof(PacketOutgoingType));
         }
 
+        private string GetVerbatem(string text)
+        {
+            if (String.IsNullOrEmpty(text))
+                return String.Empty;
+
+            int idx = 0;
+            var data = new char[text.Length];
+
+            for (int i = 0; i < text.Length; i++)
+                if (text[i] != '§')
+                    data[idx++] = text[i];
+                else
+                    i++;
+
+            return new string(data, 0, idx);
+        }
+
+        private void update_sh_info(string update)
+        {
+            string output = GetVerbatem(update);
+
+            if (!sh && update.Contains("BadRep"))
+            {
+                sh = true;
+            }
+
+            if (sh)
+            {
+                string inside = output.Split('[', ']')[1];
+                sh_percent = double.Parse(inside.Substring(0, inside.Length - 1));
+            }
+        }
+
         /// <summary>
         /// Handle the given packet
         /// </summary>
@@ -571,6 +611,65 @@ namespace MinecraftClient.Protocol.Handlers
                         break;
                     default:
                         return false; //Ignored packet
+                }
+            }
+            if (packetID == 0x2D)
+            {
+                byte window_id = readNextByte(packetData);
+                string window_type = readNextString(packetData);
+                string window_title = readNextString(packetData);
+                byte number_of_slots = readNextByte(packetData);
+                chest_size = number_of_slots;
+                chest_title = window_title;
+                chest_id = window_id;
+            }
+            if (packetID == 0x2E)
+            {
+                Console.WriteLine("Window forcibly closed");
+                chest_size = 0;
+                chest_title = "";
+                chest_id = 0;
+            }
+            if (packetID == 0x32)
+            {
+                Console.WriteLine("ClientBound confirm transaction");
+                SendPacket(0x0F, packetData);
+                Console.WriteLine(readNextBool(packetData));
+            }
+            if (packetID == 0x30)
+            {
+                byte window_id = readNextByte(packetData);
+                readNextShort(packetData);
+                int given_id = 351;
+                for (int i = 0; i < chest_size; i++)
+                {
+                    short item_id = readNextShort(packetData);
+                    short nbt_size = 0;
+                    if(item_id != -1)
+                    {
+                        readNextByte(packetData);
+                        readNextShort(packetData);
+                        nbt_size = readNextShort(packetData);
+                    }
+                    if (given_id == item_id)
+                    {
+                        if (!sh_in_inv)
+                        {
+                            var myFile = new NbtFile();
+                            myFile.LoadFromBuffer(packetData.ToArray(), 0, nbt_size, NbtCompression.AutoDetect);
+                            NbtList data = myFile.RootTag.Get<NbtCompound>("display").Get<NbtList>("Lore");
+                            string line = data.Get<NbtString>(4).Value;
+                            update_sh_info(line);
+                            ConsoleIO.WriteLineFormatted(line);
+                        }
+                        sh_in_inv = !sh_in_inv;
+                        SendPacket(0x0D, new byte[] { window_id });
+                        break;
+                    }
+                    if(nbt_size > 0)
+                    {
+                        readData((int) nbt_size, packetData);
+                    }
                 }
             }
             // Regular in-game packets
@@ -1517,6 +1616,13 @@ namespace MinecraftClient.Protocol.Handlers
             byte[] theDouble = BitConverter.GetBytes(number);
             Array.Reverse(theDouble); //Endianness
             return theDouble;
+        }
+
+        private byte[] getShort(short number)
+        {
+            byte[] theShort = BitConverter.GetBytes(number);
+            Array.Reverse(theShort);
+            return theShort;
         }
 
         /// <summary>
