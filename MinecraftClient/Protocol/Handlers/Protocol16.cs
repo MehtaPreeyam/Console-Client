@@ -35,10 +35,10 @@ namespace MinecraftClient.Protocol.Handlers
             this.protocolversion = ProtocolVersion;
             this.handler = Handler;
 
-            if (Settings.TerrainAndMovements)
+            if (Handler.GetTerrainEnabled())
             {
                 ConsoleIO.WriteLineFormatted("§8Terrain & Movements currently not handled for that MC version.");
-                Settings.TerrainAndMovements = false;
+                Handler.SetTerrainEnabled(false);
             }
         }
 

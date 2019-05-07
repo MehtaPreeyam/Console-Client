@@ -14,6 +14,11 @@ namespace MinecraftClient.Protocol
     /// <summary>
     /// Handle login, session, server ping and provide a protocol handler for interacting with a minecraft server.
     /// </summary>
+    /// <remarks>
+    /// Typical update steps for marking a new Minecraft version as supported:
+    ///  - Add protocol ID in GetProtocolHandler()
+    ///  - Add 1.X.X case in MCVer2ProtocolVersion()
+    /// </remarks>
     public static class ProtocolHandler
     {
         /// <summary>
@@ -106,7 +111,7 @@ namespace MinecraftClient.Protocol
             int[] supportedVersions_Protocol16 = { 51, 60, 61, 72, 73, 74, 78 };
             if (Array.IndexOf(supportedVersions_Protocol16, ProtocolVersion) > -1)
                 return new Protocol16Handler(Client, ProtocolVersion, Handler);
-            int[] supportedVersions_Protocol18 = { 4, 5, 47, 107, 108, 109, 110, 210, 315, 316, 335, 338, 340, 393, 401 , 404 };
+            int[] supportedVersions_Protocol18 = { 4, 5, 47, 107, 108, 109, 110, 210, 315, 316, 335, 338, 340, 393, 401, 404, 477 };
             if (Array.IndexOf(supportedVersions_Protocol18, ProtocolVersion) > -1)
                 return new Protocol18Handler(Client, ProtocolVersion, Handler, forgeInfo);
             throw new NotSupportedException("The protocol version no." + ProtocolVersion + " is not supported.");
@@ -195,6 +200,9 @@ namespace MinecraftClient.Protocol
                         return 401;
                     case "1.13.2":
                         return 404;
+                    case "1.14":
+                    case "1.14.0":
+                        return 477;
                     default:
                         return 0;
                 }
@@ -270,20 +278,32 @@ namespace MinecraftClient.Protocol
                     return LoginResult.OtherError;
                 }
             }
-            catch (System.Security.Authentication.AuthenticationException)
+            catch (System.Security.Authentication.AuthenticationException e)
             {
+                if (Settings.DebugMessages)
+                {
+                    ConsoleIO.WriteLineFormatted("§8" + e.ToString());
+                }
                 return LoginResult.SSLError;
             }
             catch (System.IO.IOException e)
             {
+                if (Settings.DebugMessages)
+                {
+                    ConsoleIO.WriteLineFormatted("§8" + e.ToString());
+                }
                 if (e.Message.Contains("authentication"))
                 {
                     return LoginResult.SSLError;
                 }
                 else return LoginResult.OtherError;
             }
-            catch
+            catch (Exception e)
             {
+                if (Settings.DebugMessages)
+                {
+                    ConsoleIO.WriteLineFormatted("§8" + e.ToString());
+                }
                 return LoginResult.OtherError;
             }
         }
@@ -514,6 +534,7 @@ namespace MinecraftClient.Protocol
         private static string JsonEncode(string text)
         {
             StringBuilder result = new StringBuilder();
+
             foreach (char c in text)
             {
                 if ((c >= '0' && c <= '9') ||

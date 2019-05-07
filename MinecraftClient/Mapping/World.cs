@@ -80,7 +80,7 @@ namespace MinecraftClient.Mapping
                 if (chunk != null)
                     return chunk.GetBlock(location);
             }
-            return new Block(Material.Air);
+            return new Block(0); //Air
         }
 
         /// <summary>
@@ -98,6 +98,14 @@ namespace MinecraftClient.Mapping
                     column[location.ChunkY] = chunk = new Chunk();
                 chunk[location.ChunkBlockX, location.ChunkBlockY, location.ChunkBlockZ] = block;
             }
+        }
+
+        /// <summary>
+        /// Clear all terrain data from the world
+        /// </summary>
+        public void Clear()
+        {
+            chunks = new Dictionary<int, Dictionary<int, ChunkColumn>>();
         }
     }
 }

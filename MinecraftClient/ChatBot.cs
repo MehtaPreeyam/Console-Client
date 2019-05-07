@@ -241,6 +241,18 @@ namespace MinecraftClient
 
             text = GetVerbatim(text);
 
+            //User-defined regex for private chat messages
+            if (Settings.ChatFormat_Private != null)
+            {
+                Match regexMatch = Settings.ChatFormat_Private.Match(text);
+                if (regexMatch.Success && regexMatch.Groups.Count >= 3)
+                {
+                    sender = regexMatch.Groups[1].Value;
+                    message = regexMatch.Groups[2].Value;
+                    return IsValidName(sender);
+                }
+            }
+
             //Built-in detection routine for private messages
             if (Settings.ChatFormat_Builtins)
             {
@@ -323,18 +335,6 @@ namespace MinecraftClient
                 catch (ArgumentOutOfRangeException) { /* Same here */ }
             }
 
-            //User-defined regex for private chat messages
-            if (Settings.ChatFormat_Private != null)
-            {
-                Match regexMatch = Settings.ChatFormat_Private.Match(text);
-                if (regexMatch.Success && regexMatch.Groups.Count >= 3)
-                {
-                    sender = regexMatch.Groups[1].Value;
-                    message = regexMatch.Groups[2].Value;
-                    return IsValidName(sender);
-                }
-            }
-
             return false;
         }
 
@@ -351,7 +351,19 @@ namespace MinecraftClient
                 return false;
 
             text = GetVerbatim(text);
-            
+
+            //User-defined regex for public chat messages
+            if (Settings.ChatFormat_Public != null)
+            {
+                Match regexMatch = Settings.ChatFormat_Public.Match(text);
+                if (regexMatch.Success && regexMatch.Groups.Count >= 3)
+                {
+                    sender = regexMatch.Groups[1].Value;
+                    message = regexMatch.Groups[2].Value;
+                    return IsValidName(sender);
+                }
+            }
+
             //Built-in detection routine for public messages
             if (Settings.ChatFormat_Builtins)
             {
@@ -427,18 +439,6 @@ namespace MinecraftClient
                 }
             }
 
-            //User-defined regex for public chat messages
-            if (Settings.ChatFormat_Public != null)
-            {
-                Match regexMatch = Settings.ChatFormat_Public.Match(text);
-                if (regexMatch.Success && regexMatch.Groups.Count >= 3)
-                {
-                    sender = regexMatch.Groups[1].Value;
-                    message = regexMatch.Groups[2].Value;
-                    return IsValidName(sender);
-                }
-            }
-
             return false;
         }
 
@@ -454,6 +454,17 @@ namespace MinecraftClient
                 return false;
 
             text = GetVerbatim(text);
+
+            //User-defined regex for teleport requests
+            if (Settings.ChatFormat_TeleportRequest != null)
+            {
+                Match regexMatch = Settings.ChatFormat_TeleportRequest.Match(text);
+                if (regexMatch.Success && regexMatch.Groups.Count >= 2)
+                {
+                    sender = regexMatch.Groups[1].Value;
+                    return IsValidName(sender);
+                }
+            }
 
             //Built-in detection routine for teleport requests
             if (Settings.ChatFormat_Builtins)
@@ -480,17 +491,6 @@ namespace MinecraftClient
                         sender = sender.Substring(1);
 
                     //Final check on username validity
-                    return IsValidName(sender);
-                }
-            }
-
-            //User-defined regex for teleport requests
-            if (Settings.ChatFormat_TeleportRequest != null)
-            {
-                Match regexMatch = Settings.ChatFormat_TeleportRequest.Match(text);
-                if (regexMatch.Success && regexMatch.Groups.Count >= 2)
-                {
-                    sender = regexMatch.Groups[1].Value;
                     return IsValidName(sender);
                 }
             }
@@ -580,12 +580,32 @@ namespace MinecraftClient
         }
 
         /// <summary>
+        /// Check whether Terrain and Movements is enabled.
+        /// </summary>
+        /// <returns>Enable status.</returns>
+        public bool GetTerrainEnabled()
+        {
+            return Handler.GetTerrainEnabled();
+        }
+
+        /// <summary>
+        /// Enable or disable Terrain and Movements.
+        /// Please note that Enabling will be deferred until next relog, respawn or world change.
+        /// </summary>
+        /// <param name="enabled">Enabled</param>
+        /// <returns>TRUE if the setting was applied immediately, FALSE if delayed.</returns>
+        public bool SetTerrainEnabled(bool enabled)
+        {
+            return Handler.SetTerrainEnabled(enabled);
+        }
+
+        /// <summary>
         /// Get the current Minecraft World
         /// </summary>
         /// <returns>Minecraft world or null if associated setting is disabled</returns>
         protected Mapping.World GetWorld()
         {
-            if (Settings.TerrainAndMovements)
+            if (GetTerrainEnabled())
                 return Handler.GetWorld();
             return null;
         }
@@ -655,6 +675,18 @@ namespace MinecraftClient
         protected string[] GetOnlinePlayers()
         {
             return Handler.GetOnlinePlayers();
+        }
+
+        /// <summary>
+        /// Get a dictionary of online player names and their corresponding UUID
+        /// </summary>
+        /// <returns>
+        ///     dictionary of online player whereby
+        ///     UUID represents the key
+        ///     playername represents the value</returns>
+        protected Dictionary<string, string> GetOnlinePlayersWithUUID()
+        {
+            return Handler.GetOnlinePlayersWithUUID();
         }
 
         /// <summary>

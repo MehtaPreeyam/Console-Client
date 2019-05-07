@@ -16,7 +16,6 @@ namespace MinecraftClient
     /// <summary>
     /// The main client class, used to connect to a Minecraft server.
     /// </summary>
-
     public class McTcpClient : IMinecraftComHandler
     {
         public static int ReconnectionAttemptsLeft = 0;
@@ -31,6 +30,8 @@ namespace MinecraftClient
         private readonly Dictionary<string, List<ChatBot>> registeredBotPluginChannels = new Dictionary<string, List<ChatBot>>();
         private readonly List<string> registeredServerPluginChannels = new List<String>();
 
+        private bool terrainAndMovementsEnabled;
+        private bool terrainAndMovementsRequested = false;
         private object locationLock = new object();
         private bool locationReceived = false;
         private World world = new World();
@@ -101,6 +102,8 @@ namespace MinecraftClient
         /// <param name="command">The text or command to send. Will only be sent if singlecommand is set to true.</param>
         private void StartClient(string user, string uuid, string sessionID, string server_ip, ushort port, int protocolversion, ForgeInfo forgeInfo, bool singlecommand, string command)
         {
+            terrainAndMovementsEnabled = Settings.TerrainAndMovements;
+
             bool retry = false;
             this.sessionid = sessionID;
             this.uuid = uuid;
@@ -112,10 +115,6 @@ namespace MinecraftClient
             {
                 if (botsOnHold.Count == 0)
                 {
-                    BotLoad(new ChatBots.BalanceLogger(6000, "players.txt", "Balances.txt"));
-                    BotLoad(new ChatBots.MoneyBot());
-                    BotLoad(new ChatBots.FactionLogger(6000));
-                    Console.WriteLine("MoneyBot loaded");
                     if (Settings.AntiAFK_Enabled) { BotLoad(new ChatBots.AntiAFK(Settings.AntiAFK_Delay)); }
                     if (Settings.Hangman_Enabled) { BotLoad(new ChatBots.HangmanGame(Settings.Hangman_English)); }
                     if (Settings.Alerts_Enabled) { BotLoad(new ChatBots.Alerts()); }
@@ -393,6 +392,58 @@ namespace MinecraftClient
         }
 
         /// <summary>
+        /// Called when the player respawns, which happens on login, respawn and world change.
+        /// </summary>
+        public void OnRespawn()
+        {
+            if (terrainAndMovementsRequested)
+            {
+                terrainAndMovementsEnabled = true;
+                terrainAndMovementsRequested = false;
+                ConsoleIO.WriteLogLine("Terrain and Movements is now enabled.");
+            }
+
+            if (terrainAndMovementsEnabled)
+            {
+                world.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Get Terrain and Movements status.
+        /// </summary>
+        public bool GetTerrainEnabled()
+        {
+            return terrainAndMovementsEnabled;
+        }
+
+        /// <summary>
+        /// Enable or disable Terrain and Movements.
+        /// Please note that Enabling will be deferred until next relog, respawn or world change.
+        /// </summary>
+        /// <param name="enabled">Enabled</param>
+        /// <returns>TRUE if the setting was applied immediately, FALSE if delayed.</returns>
+        public bool SetTerrainEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                if (!terrainAndMovementsEnabled)
+                {
+                    terrainAndMovementsRequested = true;
+                    return false;
+                }
+            }
+            else
+            {
+                terrainAndMovementsEnabled = false;
+                terrainAndMovementsRequested = false;
+                locationReceived = false;
+                world.Clear();
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Called when the server sends a new player location,
         /// or if a ChatBot whishes to update the player's location.
         /// </summary>
@@ -472,7 +523,7 @@ namespace MinecraftClient
                     yaw = 90;
                     break;
                 case Direction.North:
-                    yaw = 90;
+                    yaw = 180;
                     break;
                 case Direction.South:
                     break;
@@ -543,6 +594,8 @@ namespace MinecraftClient
         /// </summary>
         public void OnConnectionLost(ChatBot.DisconnectReason reason, string message)
         {
+            world.Clear();
+
             bool will_restart = false;
 
             switch (reason)
@@ -592,7 +645,7 @@ namespace MinecraftClient
                 }
             }
 
-            if (Settings.TerrainAndMovements && locationReceived)
+            if (terrainAndMovementsEnabled && locationReceived)
             {
                 lock (locationLock)
                 {
@@ -608,7 +661,7 @@ namespace MinecraftClient
                             {
                                 Location next = path.Dequeue();
                                 steps = Movement.Move2Steps(location, next, ref motionY);
-                                UpdateLocation(location, next); // Update yaw and pitch to look at next step
+                                UpdateLocation(location, next + new Location(0, 1, 0)); // Update yaw and pitch to look at next step
                             }
                             else
                             {
@@ -705,6 +758,26 @@ namespace MinecraftClient
             {
                 return onlinePlayers.Values.Distinct().ToArray();
             }
+        }
+
+        /// <summary>
+        /// Get a dictionary of online player names and their corresponding UUID
+        /// </summary>
+        /// <returns>
+        ///     dictionary of online player whereby
+        ///     UUID represents the key
+        ///     playername represents the value</returns>
+        public Dictionary<string, string> GetOnlinePlayersWithUUID()
+        {
+            Dictionary<string, string> uuid2Player = new Dictionary<string, string>();
+            lock (onlinePlayers)
+            {
+                foreach (Guid key in onlinePlayers.Keys)
+                {
+                    uuid2Player.Add(key.ToString(), onlinePlayers[key]);
+                }
+            }
+            return uuid2Player;
         }
 
         /// <summary>

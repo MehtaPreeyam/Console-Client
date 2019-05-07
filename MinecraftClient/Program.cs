@@ -12,10 +12,17 @@ using MinecraftClient.WinAPI;
 namespace MinecraftClient
 {
     /// <summary>
-    /// Minecraft Console Client by ORelio and Contributors (c) 2012-2018.
+    /// Minecraft Console Client by ORelio and Contributors (c) 2012-2019.
     /// Allows to connect to any Minecraft server, send and receive text, automated scripts.
     /// This source code is released under the CDDL 1.0 License.
     /// </summary>
+    /// <remarks>
+    /// Typical steps to update MCC for a new Minecraft version
+    ///  - Implement protocol changes (see Protocol18.cs)
+    ///  - Handle new block types and states (see Material.cs)
+    ///  - Mark new version as handled (see ProtocolHandler.cs)
+    ///  - Update MCHighestVersion field below (for versionning)
+    /// </remarks>
     static class Program
     {
         private static McTcpClient Client;
@@ -23,7 +30,7 @@ namespace MinecraftClient
 
         public const string Version = MCHighestVersion;
         public const string MCLowestVersion = "1.4.6";
-        public const string MCHighestVersion = "1.13.2";
+        public const string MCHighestVersion = "1.14";
         public static readonly string BuildInfo = null;
 
         private static Thread offlinePrompt = null;
