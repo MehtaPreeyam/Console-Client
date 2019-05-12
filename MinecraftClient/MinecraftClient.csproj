@@ -87,6 +87,7 @@
     <Compile Include="ChatBots\RemoteControl.cs" />
     <Compile Include="ChatBots\Script.cs" />
     <Compile Include="ChatBots\Stronghold.cs" />
+	<Compile Include="ChatBots\Outpost.cs" />
     <Compile Include="ChatBots\ScriptScheduler.cs" />
     <Compile Include="ChatBots\TestBot.cs" />
     <Compile Include="ChatBot.cs" />

@@ -113,6 +113,7 @@ namespace MinecraftClient
                 if (botsOnHold.Count == 0)
                 {
                     BotLoad(new ChatBots.Stronghold(100));
+                    BotLoad(new ChatBots.Outpost(75));
                     if (Settings.AntiAFK_Enabled) { BotLoad(new ChatBots.AntiAFK(Settings.AntiAFK_Delay)); }
                     if (Settings.Hangman_Enabled) { BotLoad(new ChatBots.HangmanGame(Settings.Hangman_English)); }
                     if (Settings.Alerts_Enabled) { BotLoad(new ChatBots.Alerts()); }
